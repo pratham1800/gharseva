@@ -173,27 +173,28 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      <main className="section-padding pt-24 pb-32">
+      <main className="px-4 sm:px-8 lg:px-16 py-6 sm:py-12 lg:py-16 pt-20 sm:pt-24 pb-24 sm:pb-32">
         <div className="container-main">
           {/* Header */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mb-8"
+            className="mb-6 sm:mb-8"
           >
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div className="flex flex-col gap-4">
               <div>
-                <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2">
+                <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-1 sm:mb-2">
                   Welcome back, {user.user_metadata?.full_name?.split(' ')[0] || 'User'}! 👋
                 </h1>
-                <p className="text-muted-foreground">
+                <p className="text-muted-foreground text-sm sm:text-base">
                   Manage your bookings and track your service requests
                 </p>
               </div>
-              <div className="flex items-center gap-3">
-                <Button variant="outline" onClick={() => navigate('/services')} className="gap-2">
+              <div className="flex items-center gap-2 sm:gap-3">
+                <Button variant="outline" size="sm" onClick={() => navigate('/services')} className="gap-2 flex-1 sm:flex-none">
                   <Plus className="w-4 h-4" />
-                  New Booking
+                  <span className="hidden sm:inline">New Booking</span>
+                  <span className="sm:hidden">Book</span>
                 </Button>
                 <Button variant="ghost" size="icon" onClick={handleSignOut}>
                   <LogOut className="w-5 h-5" />
@@ -207,7 +208,7 @@ const Dashboard = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8"
+            className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8"
           >
             {[
               { label: 'Total Bookings', value: bookings.length, icon: Calendar },
@@ -215,14 +216,14 @@ const Dashboard = () => {
               { label: 'Completed', value: bookings.filter(b => b.status === 'completed').length, icon: CheckCircle },
               { label: 'Cancelled', value: bookings.filter(b => b.status === 'cancelled').length, icon: AlertCircle },
             ].map((stat, index) => (
-              <div key={stat.label} className="bg-card rounded-2xl p-5 shadow-soft">
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center">
-                    <stat.icon className="w-5 h-5 text-primary" />
+              <div key={stat.label} className="bg-card rounded-xl sm:rounded-2xl p-3 sm:p-5 shadow-soft">
+                <div className="flex items-center gap-2 sm:gap-3 mb-1 sm:mb-2">
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-primary/10 rounded-lg sm:rounded-xl flex items-center justify-center">
+                    <stat.icon className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
                   </div>
                 </div>
-                <div className="text-2xl font-bold text-foreground">{stat.value}</div>
-                <div className="text-sm text-muted-foreground">{stat.label}</div>
+                <div className="text-xl sm:text-2xl font-bold text-foreground">{stat.value}</div>
+                <div className="text-xs sm:text-sm text-muted-foreground">{stat.label}</div>
               </div>
             ))}
           </motion.div>

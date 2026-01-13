@@ -134,7 +134,7 @@ export const RequirementForm = ({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-foreground/50 backdrop-blur-sm"
+        className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-foreground/50 backdrop-blur-sm"
         onClick={onClose}
       >
         <motion.div
@@ -142,19 +142,19 @@ export const RequirementForm = ({
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
           transition={{ duration: 0.2 }}
-          className="bg-card w-full max-w-2xl rounded-3xl shadow-elevated overflow-hidden max-h-[90vh] overflow-y-auto"
+          className="bg-card w-full sm:max-w-2xl rounded-t-3xl sm:rounded-3xl shadow-elevated overflow-hidden max-h-[95vh] sm:max-h-[90vh] overflow-y-auto"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
-          <div className={`p-6 bg-gradient-to-br ${service.heroGradient}`}>
+          <div className={`p-4 sm:p-6 bg-gradient-to-br ${service.heroGradient}`}>
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <div className={`w-14 h-14 ${service.bgColor} rounded-2xl flex items-center justify-center`}>
-                  <img src={service.icon} alt={service.title} className="w-8 h-8 object-contain" />
+              <div className="flex items-center gap-3 sm:gap-4">
+                <div className={`w-12 h-12 sm:w-14 sm:h-14 ${service.bgColor} rounded-xl sm:rounded-2xl flex items-center justify-center`}>
+                  <img src={service.icon} alt={service.title} className="w-7 h-7 sm:w-8 sm:h-8 object-contain" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-bold text-foreground">{service.title}</h2>
-                  <p className="text-muted-foreground text-sm">
+                  <h2 className="text-lg sm:text-xl font-bold text-foreground">{service.title}</h2>
+                  <p className="text-muted-foreground text-xs sm:text-sm">
                     {selectedSubServices.length} service{selectedSubServices.length !== 1 ? 's' : ''} selected
                   </p>
                 </div>
@@ -168,11 +168,11 @@ export const RequirementForm = ({
             </div>
 
             {/* Progress indicator */}
-            <div className="flex items-center gap-2 mt-6">
+            <div className="flex items-center gap-2 mt-4 sm:mt-6">
               {[1, 2, 3].map((s) => (
                 <div
                   key={s}
-                  className={`h-1.5 flex-1 rounded-full transition-colors ${
+                  className={`h-1 sm:h-1.5 flex-1 rounded-full transition-colors ${
                     s <= step ? 'bg-primary' : 'bg-muted'
                   }`}
                 />
@@ -181,7 +181,7 @@ export const RequirementForm = ({
           </div>
 
           {/* Content */}
-          <div className="p-6">
+          <div className="p-4 sm:p-6">
             <AnimatePresence mode="wait">
               {step === 1 && (
                 <motion.div
@@ -189,57 +189,57 @@ export const RequirementForm = ({
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -20 }}
-                  className="space-y-6"
+                  className="space-y-4 sm:space-y-6"
                 >
                   <div>
-                    <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
-                      <Home className="w-5 h-5 text-primary" />
+                    <h3 className="text-base sm:text-lg font-semibold text-foreground mb-3 sm:mb-4 flex items-center gap-2">
+                      <Home className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
                       Tell us about your home
                     </h3>
                     
                     {/* House Size */}
-                    <Label className="text-sm font-medium mb-3 block">House Size</Label>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6">
+                    <Label className="text-sm font-medium mb-2 sm:mb-3 block">House Size</Label>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3 mb-4 sm:mb-6">
                       {houseSizes.map((size) => (
                         <button
                           key={size.id}
                           onClick={() => handleInputChange('houseSize', size.id)}
-                          className={`p-4 rounded-xl border-2 transition-all text-left ${
+                          className={`p-3 sm:p-4 rounded-xl border-2 transition-all text-left ${
                             formData.houseSize === size.id
                               ? 'border-primary bg-primary/5'
                               : 'border-border hover:border-primary/50'
                           }`}
                         >
-                          <div className="font-medium text-foreground">{size.label}</div>
+                          <div className="font-medium text-foreground text-sm sm:text-base">{size.label}</div>
                           <div className="text-xs text-muted-foreground">{size.description}</div>
                         </button>
                       ))}
                     </div>
 
                     {/* Preferred Time */}
-                    <Label className="text-sm font-medium mb-3 block flex items-center gap-2">
+                    <Label className="text-sm font-medium mb-2 sm:mb-3 block flex items-center gap-2">
                       <Clock className="w-4 h-4 text-secondary" />
                       Preferred Time Slot
                     </Label>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3 mb-4 sm:mb-6">
                       {timeSlots.map((slot) => (
                         <button
                           key={slot.id}
                           onClick={() => handleInputChange('preferredTime', slot.id)}
-                          className={`p-4 rounded-xl border-2 transition-all text-left ${
+                          className={`p-3 sm:p-4 rounded-xl border-2 transition-all text-left ${
                             formData.preferredTime === slot.id
                               ? 'border-primary bg-primary/5'
                               : 'border-border hover:border-primary/50'
                           }`}
                         >
-                          <div className="font-medium text-foreground">{slot.label}</div>
+                          <div className="font-medium text-foreground text-sm sm:text-base">{slot.label}</div>
                           <div className="text-xs text-muted-foreground">{slot.time}</div>
                         </button>
                       ))}
                     </div>
 
                     {/* Start Date */}
-                    <Label className="text-sm font-medium mb-3 block flex items-center gap-2">
+                    <Label className="text-sm font-medium mb-2 sm:mb-3 block flex items-center gap-2">
                       <Calendar className="w-4 h-4 text-primary" />
                       When do you want to start?
                     </Label>
@@ -248,7 +248,7 @@ export const RequirementForm = ({
                       value={formData.startDate}
                       onChange={(e) => handleInputChange('startDate', e.target.value)}
                       min={new Date().toISOString().split('T')[0]}
-                      className="max-w-xs"
+                      className="max-w-full sm:max-w-xs"
                     />
                   </div>
                 </motion.div>
@@ -410,9 +410,9 @@ export const RequirementForm = ({
           </div>
 
           {/* Footer */}
-          <div className="p-6 border-t border-border flex items-center justify-between gap-4">
+          <div className="p-4 sm:p-6 border-t border-border flex items-center justify-between gap-3 sm:gap-4">
             {step > 1 ? (
-              <Button variant="outline" onClick={() => setStep(step - 1)}>
+              <Button variant="outline" size="sm" onClick={() => setStep(step - 1)}>
                 Back
               </Button>
             ) : (
@@ -424,6 +424,7 @@ export const RequirementForm = ({
                 onClick={() => setStep(step + 1)}
                 disabled={step === 1 ? !canProceedStep1 : !canProceedStep2}
                 className="gap-2"
+                size="sm"
               >
                 Continue
                 <ArrowRight className="w-4 h-4" />
@@ -432,9 +433,10 @@ export const RequirementForm = ({
               <Button
                 onClick={handleSubmit}
                 disabled={isSubmitting}
-                className="gap-2"
+                className="gap-2 text-sm"
+                size="sm"
               >
-                {isSubmitting ? 'Submitting...' : 'Submit Booking Request'}
+                {isSubmitting ? 'Submitting...' : 'Submit Booking'}
                 {!isSubmitting && <ArrowRight className="w-4 h-4" />}
               </Button>
             )}
