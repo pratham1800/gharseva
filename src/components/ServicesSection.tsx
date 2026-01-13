@@ -1,45 +1,8 @@
 import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import iconCleaning from '@/assets/icon-cleaning.png';
-import iconCooking from '@/assets/icon-cooking.png';
-import iconDriver from '@/assets/icon-driver.png';
-import iconGardening from '@/assets/icon-gardening.png';
-
-const services = [
-  {
-    id: 'cleaning',
-    title: 'Domestic Help',
-    description: 'Mopping, brooming, dusting, dish washing & bathroom cleaning',
-    icon: iconCleaning,
-    color: 'from-orange-400 to-orange-500',
-    bgColor: 'bg-orange-50',
-  },
-  {
-    id: 'cooking',
-    title: 'Cooking',
-    description: 'Delicious home-cooked meals prepared fresh daily',
-    icon: iconCooking,
-    color: 'from-amber-400 to-orange-400',
-    bgColor: 'bg-amber-50',
-  },
-  {
-    id: 'driver',
-    title: 'Car Drivers',
-    description: 'Safe and reliable drivers for your daily commute',
-    icon: iconDriver,
-    color: 'from-teal-400 to-teal-500',
-    bgColor: 'bg-teal-50',
-  },
-  {
-    id: 'gardening',
-    title: 'Gardeners',
-    description: 'Keep your garden green, beautiful and well-maintained',
-    icon: iconGardening,
-    color: 'from-green-400 to-emerald-500',
-    bgColor: 'bg-green-50',
-  },
-];
+import { servicesData } from '@/data/servicesData';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -61,6 +24,8 @@ const itemVariants = {
 };
 
 export const ServicesSection = () => {
+  const navigate = useNavigate();
+  
   return (
     <section id="services" className="section-padding bg-background">
       <div className="container-main">
@@ -91,11 +56,12 @@ export const ServicesSection = () => {
           viewport={{ once: true, margin: "-100px" }}
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
         >
-          {services.map((service) => (
+          {servicesData.map((service) => (
             <motion.div
               key={service.id}
               variants={itemVariants}
               whileHover={{ y: -8, transition: { duration: 0.2 } }}
+              onClick={() => navigate(`/services/${service.id}`)}
               className="group relative bg-card rounded-3xl p-6 shadow-soft hover:shadow-elevated transition-all duration-300 cursor-pointer overflow-hidden"
             >
               {/* Background gradient on hover */}
@@ -131,7 +97,7 @@ export const ServicesSection = () => {
           transition={{ delay: 0.4 }}
           className="text-center mt-12"
         >
-          <Button variant="outline" size="lg">
+          <Button variant="outline" size="lg" onClick={() => navigate('/services')}>
             View All Services
             <ArrowRight className="w-4 h-4" />
           </Button>
