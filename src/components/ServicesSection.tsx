@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Star, IndianRupee, Clock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { servicesData } from '@/data/servicesData';
@@ -62,41 +62,70 @@ export const ServicesSection = () => {
               variants={itemVariants}
               whileHover={{ y: -8, transition: { duration: 0.2 } }}
               onClick={() => navigate(`/services/${service.id}`)}
-              className="group relative bg-card rounded-2xl sm:rounded-3xl p-5 sm:p-6 shadow-soft hover:shadow-elevated transition-all duration-300 overflow-hidden cursor-pointer"
+              className="group relative bg-card rounded-2xl sm:rounded-3xl shadow-soft hover:shadow-elevated transition-all duration-300 overflow-hidden cursor-pointer"
             >
+              {/* Popular Badge */}
+              {service.popularTag && (
+                <div className="absolute top-3 right-3 z-10">
+                  <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-primary text-primary-foreground text-xs font-semibold rounded-full">
+                    <Star className="w-3 h-3 fill-current" />
+                    {service.popularTag}
+                  </span>
+                </div>
+              )}
+
               {/* Background gradient on hover */}
               <div className={`absolute inset-0 bg-gradient-to-br ${service.color} opacity-0 group-hover:opacity-5 transition-opacity duration-300`} />
               
-              {/* Mobile: Horizontal layout, Desktop: Vertical layout */}
-              <div className="flex items-start gap-4 sm:block">
-                {/* Icon - Large and prominent */}
-                <div className={`w-20 h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28 ${service.bgColor} rounded-2xl sm:rounded-3xl flex items-center justify-center flex-shrink-0 sm:mb-5 group-hover:scale-110 transition-transform duration-300`}>
-                  <img src={service.icon} alt={service.title} className="w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 object-contain" />
+              {/* Main Content */}
+              <div className="p-5 sm:p-6">
+                {/* Icon - Centered and prominent */}
+                <div className="flex justify-center mb-4">
+                  <div className={`w-20 h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28 ${service.bgColor} rounded-2xl sm:rounded-3xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300`}>
+                    <img src={service.icon} alt={service.title} className="w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 object-contain" />
+                  </div>
                 </div>
 
-                {/* Content */}
-                <div className="flex-1 min-w-0">
-                  <h3 className="text-lg sm:text-xl font-semibold text-foreground mb-1 sm:mb-2 group-hover:text-primary transition-colors">
-                    {service.title}
-                  </h3>
-                  <p className="text-muted-foreground text-sm mb-2 sm:mb-4 leading-relaxed line-clamp-2">
-                    {service.description}
-                  </p>
+                {/* Title */}
+                <h3 className="text-lg sm:text-xl font-bold text-foreground mb-2 text-center group-hover:text-primary transition-colors">
+                  {service.title}
+                </h3>
+                
+                {/* Description */}
+                <p className="text-muted-foreground text-sm mb-4 leading-relaxed line-clamp-2 text-center">
+                  {service.description}
+                </p>
+
+                {/* Pricing Info */}
+                <div className="flex items-center justify-center gap-4 mb-4 text-sm">
+                  <div className="flex items-center gap-1.5 text-foreground">
+                    <IndianRupee className="w-4 h-4 text-primary" />
+                    <span className="font-semibold">From {service.startingPrice}</span>
+                    <span className="text-muted-foreground">/mo</span>
+                  </div>
+                </div>
+
+                {/* Sub-services count */}
+                <div className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground mb-4">
+                  <Clock className="w-3.5 h-3.5" />
+                  <span>{service.subServices.length} service options</span>
                 </div>
               </div>
 
               {/* CTA Button */}
-              <Button 
-                size="sm" 
-                className="w-full gap-2 mt-4"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  navigate(`/services/${service.id}`);
-                }}
-              >
-                Book Now
-                <ArrowRight className="w-4 h-4" />
-              </Button>
+              <div className="px-5 sm:px-6 pb-5 sm:pb-6">
+                <Button 
+                  size="sm" 
+                  className="w-full gap-2"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigate(`/services/${service.id}`);
+                  }}
+                >
+                  Book Now
+                  <ArrowRight className="w-4 h-4" />
+                </Button>
+              </div>
             </motion.div>
           ))}
         </motion.div>
