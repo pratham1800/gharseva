@@ -19,6 +19,8 @@ export interface Service {
   color: string;
   bgColor: string;
   heroGradient: string;
+  startingPrice: string;
+  popularTag?: string;
   subServices: SubService[];
 }
 
@@ -31,6 +33,8 @@ export const servicesData: Service[] = [
     color: 'from-orange-400 to-orange-500',
     bgColor: 'bg-orange-50',
     heroGradient: 'from-orange-500/20 to-amber-500/10',
+    startingPrice: '₹2,000',
+    popularTag: 'Most Popular',
     subServices: [
       {
         id: 'mopping',
@@ -84,6 +88,7 @@ export const servicesData: Service[] = [
     color: 'from-amber-400 to-orange-400',
     bgColor: 'bg-amber-50',
     heroGradient: 'from-amber-500/20 to-yellow-500/10',
+    startingPrice: '₹4,000',
     subServices: [
       {
         id: 'breakfast',
@@ -137,6 +142,7 @@ export const servicesData: Service[] = [
     color: 'from-teal-400 to-teal-500',
     bgColor: 'bg-teal-50',
     heroGradient: 'from-teal-500/20 to-cyan-500/10',
+    startingPrice: '₹4,000',
     subServices: [
       {
         id: 'daily-commute',
@@ -190,6 +196,7 @@ export const servicesData: Service[] = [
     color: 'from-green-400 to-emerald-500',
     bgColor: 'bg-green-50',
     heroGradient: 'from-green-500/20 to-emerald-500/10',
+    startingPrice: '₹2,000',
     subServices: [
       {
         id: 'weekly-maintenance',
