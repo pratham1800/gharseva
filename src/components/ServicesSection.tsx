@@ -61,7 +61,8 @@ export const ServicesSection = () => {
               key={service.id}
               variants={itemVariants}
               whileHover={{ y: -8, transition: { duration: 0.2 } }}
-              className="group relative bg-card rounded-3xl p-6 shadow-soft hover:shadow-elevated transition-all duration-300 overflow-hidden"
+              onClick={() => navigate(`/services/${service.id}`)}
+              className="group relative bg-card rounded-3xl p-6 shadow-soft hover:shadow-elevated transition-all duration-300 overflow-hidden cursor-pointer"
             >
               {/* Background gradient on hover */}
               <div className={`absolute inset-0 bg-gradient-to-br ${service.color} opacity-0 group-hover:opacity-5 transition-opacity duration-300`} />
@@ -83,7 +84,10 @@ export const ServicesSection = () => {
               <Button 
                 size="sm" 
                 className="w-full gap-2"
-                onClick={() => navigate(`/services/${service.id}`)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigate(`/services/${service.id}`);
+                }}
               >
                 Book Now
                 <ArrowRight className="w-4 h-4" />
