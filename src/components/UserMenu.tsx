@@ -1,11 +1,13 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { User, LogOut, Settings, ChevronDown } from 'lucide-react';
+import { User, LogOut, Settings, ChevronDown, LayoutDashboard } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 
 export const UserMenu = () => {
   const { user, signOut } = useAuth();
+  const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
 
   const displayName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User';
@@ -13,6 +15,11 @@ export const UserMenu = () => {
 
   const handleSignOut = async () => {
     await signOut();
+    setIsOpen(false);
+  };
+
+  const handleNavigate = (path: string) => {
+    navigate(path);
     setIsOpen(false);
   };
 
@@ -60,6 +67,13 @@ export const UserMenu = () => {
               </div>
 
               <div className="p-2">
+                <button
+                  onClick={() => handleNavigate('/dashboard')}
+                  className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-muted transition-colors text-left"
+                >
+                  <LayoutDashboard className="w-4 h-4 text-muted-foreground" />
+                  <span className="text-sm text-foreground">My Bookings</span>
+                </button>
                 <button
                   onClick={() => setIsOpen(false)}
                   className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-muted transition-colors text-left"

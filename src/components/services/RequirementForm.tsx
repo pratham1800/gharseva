@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Home, Clock, Calendar, User, Phone, Mail, MessageSquare, ArrowRight, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -8,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { SubService, Service } from '@/data/servicesData';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
 
 interface RequirementFormProps {
   isOpen: boolean;
@@ -40,13 +42,14 @@ export const RequirementForm = ({
 }: RequirementFormProps) => {
   const { toast } = useToast();
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     houseSize: '',
     preferredTime: '',
     startDate: '',
-    fullName: '',
+    fullName: user?.user_metadata?.full_name || '',
     phone: '',
     email: user?.email || '',
     address: '',
@@ -58,29 +61,66 @@ export const RequirementForm = ({
   };
 
   const handleSubmit = async () => {
+    if (!user) {
+      toast({
+        title: "Please log in",
+        description: "You need to be logged in to submit a booking.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsSubmitting(true);
     
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    toast({
-      title: "Booking Request Submitted! 🎉",
-      description: "We'll match you with verified workers within 24 hours.",
-    });
-    
-    setIsSubmitting(false);
-    onClose();
-    setStep(1);
-    setFormData({
-      houseSize: '',
-      preferredTime: '',
-      startDate: '',
-      fullName: '',
-      phone: '',
-      email: user?.email || '',
-      address: '',
-      specialRequirements: '',
-    });
+    try {
+      const { error } = await supabase.from('bookings').insert({
+        user_id: user.id,
+        service_id: service.id,
+        service_title: service.title,
+        sub_services: selectedSubServices.map(s => ({ id: s.id, name: s.name })),
+        house_size: formData.houseSize,
+        preferred_time: formData.preferredTime,
+        start_date: formData.startDate,
+        full_name: formData.fullName,
+        phone: formData.phone,
+        email: formData.email,
+        address: formData.address,
+        special_requirements: formData.specialRequirements || null,
+        status: 'pending',
+      });
+
+      if (error) throw error;
+      
+      toast({
+        title: "Booking Request Submitted! 🎉",
+        description: "We'll match you with verified workers within 24 hours.",
+      });
+      
+      onClose();
+      setStep(1);
+      setFormData({
+        houseSize: '',
+        preferredTime: '',
+        startDate: '',
+        fullName: user?.user_metadata?.full_name || '',
+        phone: '',
+        email: user?.email || '',
+        address: '',
+        specialRequirements: '',
+      });
+      
+      // Navigate to dashboard after successful booking
+      navigate('/dashboard');
+    } catch (error) {
+      console.error('Error submitting booking:', error);
+      toast({
+        title: "Error",
+        description: "Failed to submit booking. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const canProceedStep1 = formData.houseSize && formData.preferredTime && formData.startDate;

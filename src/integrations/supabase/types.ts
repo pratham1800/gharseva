@@ -14,6 +14,63 @@ export type Database = {
   }
   public: {
     Tables: {
+      bookings: {
+        Row: {
+          address: string
+          created_at: string
+          email: string
+          full_name: string
+          house_size: string
+          id: string
+          phone: string
+          preferred_time: string
+          service_id: string
+          service_title: string
+          special_requirements: string | null
+          start_date: string
+          status: string
+          sub_services: Json
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          address: string
+          created_at?: string
+          email: string
+          full_name: string
+          house_size: string
+          id?: string
+          phone: string
+          preferred_time: string
+          service_id: string
+          service_title: string
+          special_requirements?: string | null
+          start_date: string
+          status?: string
+          sub_services?: Json
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          address?: string
+          created_at?: string
+          email?: string
+          full_name?: string
+          house_size?: string
+          id?: string
+          phone?: string
+          preferred_time?: string
+          service_id?: string
+          service_title?: string
+          special_requirements?: string | null
+          start_date?: string
+          status?: string
+          sub_services?: Json
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
