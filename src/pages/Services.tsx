@@ -119,13 +119,13 @@ const ServiceDetailPage = ({ service }: { service: Service }) => {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      <main>
+      <main className="pb-24">
         {/* Hero Section */}
-        <section className={`pt-20 pb-12 bg-gradient-to-br ${service.heroGradient}`}>
-          <div className="container-main section-padding pb-0">
+        <section className={`pt-20 pb-8 sm:pb-12 bg-gradient-to-br ${service.heroGradient}`}>
+          <div className="container-main px-4 sm:px-8 lg:px-16 pt-6 sm:pt-8">
             <Link
               to="/services"
-              className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-6"
+              className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-4 sm:mb-6 text-sm sm:text-base"
             >
               <ArrowLeft className="w-4 h-4" />
               Back to Services
@@ -134,16 +134,16 @@ const ServiceDetailPage = ({ service }: { service: Service }) => {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="flex flex-col md:flex-row md:items-center gap-6"
+              className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6"
             >
-              <div className={`w-24 h-24 ${service.bgColor} rounded-3xl flex items-center justify-center shadow-soft`}>
-                <img src={service.icon} alt={service.title} className="w-14 h-14 object-contain" />
+              <div className={`w-16 h-16 sm:w-24 sm:h-24 ${service.bgColor} rounded-2xl sm:rounded-3xl flex items-center justify-center shadow-soft flex-shrink-0`}>
+                <img src={service.icon} alt={service.title} className="w-10 h-10 sm:w-14 sm:h-14 object-contain" />
               </div>
               <div>
-                <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-2">
+                <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-1 sm:mb-2">
                   {service.title}
                 </h1>
-                <p className="text-muted-foreground text-lg max-w-2xl">
+                <p className="text-muted-foreground text-sm sm:text-lg max-w-2xl">
                   {service.description}. Choose from {service.subServices.length} specialized options below.
                 </p>
               </div>
@@ -152,17 +152,17 @@ const ServiceDetailPage = ({ service }: { service: Service }) => {
         </section>
 
         {/* Sub-services Grid */}
-        <section className="section-padding">
+        <section className="px-4 sm:px-8 lg:px-16 py-6 sm:py-12 lg:py-16">
           <div className="container-main">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
-              className="flex items-center justify-between mb-8"
+              className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 sm:mb-8"
             >
               <div>
-                <h2 className="text-2xl font-bold text-foreground mb-1">Available Options</h2>
-                <p className="text-muted-foreground">
+                <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-1">Available Options</h2>
+                <p className="text-muted-foreground text-sm sm:text-base">
                   Select one or more services to book
                 </p>
               </div>
@@ -170,23 +170,23 @@ const ServiceDetailPage = ({ service }: { service: Service }) => {
                 <motion.div
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  className="flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full"
+                  className="flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-primary/10 rounded-full self-start sm:self-auto"
                 >
-                  <ShoppingCart className="w-4 h-4 text-primary" />
-                  <span className="text-sm font-medium text-primary">
+                  <ShoppingCart className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary" />
+                  <span className="text-xs sm:text-sm font-medium text-primary">
                     {selectedSubServices.length} selected
                   </span>
                 </motion.div>
               )}
             </motion.div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               {service.subServices.map((subService, index) => (
                 <motion.div
                   key={subService.id}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.1 * index }}
+                  transition={{ delay: 0.05 * index }}
                 >
                   <SubServiceCard
                     subService={subService}
@@ -208,36 +208,36 @@ const ServiceDetailPage = ({ service }: { service: Service }) => {
               initial={{ y: 100, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: 100, opacity: 0 }}
-              className="fixed bottom-0 left-0 right-0 bg-card/95 backdrop-blur-lg border-t border-border p-4 shadow-elevated z-40"
+              className="fixed bottom-0 left-0 right-0 bg-card/95 backdrop-blur-lg border-t border-border p-3 sm:p-4 shadow-elevated z-40"
             >
-              <div className="container-main flex flex-col sm:flex-row items-center justify-between gap-4">
-                <div className="flex items-center gap-4">
+              <div className="container-main flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4">
+                <div className="flex items-center gap-3 sm:gap-4 w-full sm:w-auto">
                   <div className="flex -space-x-2">
                     {selectedSubServices.slice(0, 3).map((sub, i) => (
                       <div
                         key={sub.id}
-                        className={`w-10 h-10 ${service.bgColor} rounded-full border-2 border-card flex items-center justify-center`}
+                        className={`w-8 h-8 sm:w-10 sm:h-10 ${service.bgColor} rounded-full border-2 border-card flex items-center justify-center`}
                         style={{ zIndex: 3 - i }}
                       >
                         <span className="text-xs font-medium">{sub.name.charAt(0)}</span>
                       </div>
                     ))}
                     {selectedSubServices.length > 3 && (
-                      <div className="w-10 h-10 bg-muted rounded-full border-2 border-card flex items-center justify-center">
+                      <div className="w-8 h-8 sm:w-10 sm:h-10 bg-muted rounded-full border-2 border-card flex items-center justify-center">
                         <span className="text-xs font-medium">+{selectedSubServices.length - 3}</span>
                       </div>
                     )}
                   </div>
-                  <div>
-                    <p className="font-medium text-foreground">
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-foreground text-sm sm:text-base truncate">
                       {selectedSubServices.length} service{selectedSubServices.length !== 1 ? 's' : ''} selected
                     </p>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-xs sm:text-sm text-muted-foreground hidden sm:block">
                       Ready to find your perfect match
                     </p>
                   </div>
                 </div>
-                <Button size="lg" className="gap-2 w-full sm:w-auto" onClick={handleProceedToBook}>
+                <Button size="default" className="gap-2 w-full sm:w-auto text-sm sm:text-base" onClick={handleProceedToBook}>
                   <Sparkles className="w-4 h-4" />
                   Proceed to Book
                   <ArrowRight className="w-4 h-4" />
