@@ -111,9 +111,9 @@ export default function WorkerLanding() {
                   <Button 
                     variant="outline" 
                     size="xl"
-                    onClick={() => navigate('/for-workers/dashboard')}
+                    onClick={() => navigate('/for-workers/auth')}
                   >
-                    Worker Login
+                    Worker Login / Sign Up
                   </Button>
                 </div>
               </motion.div>

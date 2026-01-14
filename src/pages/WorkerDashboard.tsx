@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { Navbar } from '@/components/Navbar';
+import { WorkerNavbar } from '@/components/WorkerNavbar';
 import { Footer } from '@/components/Footer';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -154,7 +154,7 @@ export default function WorkerDashboard() {
   if (authLoading || loading) {
     return (
       <div className="min-h-screen bg-background">
-        <Navbar />
+        <WorkerNavbar />
         <main className="pt-20 section-padding flex items-center justify-center">
           <Loader2 className="w-8 h-8 animate-spin text-primary" />
         </main>
@@ -165,19 +165,19 @@ export default function WorkerDashboard() {
   if (!user) {
     return (
       <div className="min-h-screen bg-background">
-        <Navbar />
+        <WorkerNavbar />
         <main className="pt-20 section-padding">
           <div className="container-main text-center max-w-md mx-auto">
             <div className="card-elevated p-8">
               <User className="w-16 h-16 text-muted-foreground mx-auto mb-6" />
               <h1 className="text-2xl font-bold text-foreground mb-2">
-                Worker Login
+                Worker Login Required
               </h1>
               <p className="text-muted-foreground mb-6">
                 Please login to access your worker dashboard
               </p>
-              <Button onClick={() => navigate('/')} className="w-full">
-                Go to Home & Login
+              <Button onClick={() => navigate('/for-workers/auth')} className="w-full">
+                Login / Sign Up
               </Button>
             </div>
           </div>
@@ -190,24 +190,33 @@ export default function WorkerDashboard() {
   if (!worker) {
     return (
       <div className="min-h-screen bg-background">
-        <Navbar />
+        <WorkerNavbar />
         <main className="pt-20 section-padding">
           <div className="container-main text-center max-w-md mx-auto">
             <div className="card-elevated p-8">
               <AlertCircle className="w-16 h-16 text-muted-foreground mx-auto mb-6" />
               <h1 className="text-2xl font-bold text-foreground mb-2">
-                No Worker Account Found
+                No Worker Profile Found
               </h1>
               <p className="text-muted-foreground mb-6">
-                Your account is not linked to a worker profile. Contact our team for assistance.
+                Your account is not linked to a worker profile yet. Please contact our team to get registered as a worker.
               </p>
-              <Button 
-                onClick={() => window.open('https://wa.me/919876543210', '_blank')}
-                className="w-full"
-              >
-                <MessageCircle className="w-4 h-4 mr-2" />
-                Contact Support
-              </Button>
+              <div className="space-y-3">
+                <Button 
+                  onClick={() => window.open('https://wa.me/919876543210?text=Hi, I want to register as a worker', '_blank')}
+                  className="w-full"
+                >
+                  <MessageCircle className="w-4 h-4 mr-2" />
+                  Register via WhatsApp
+                </Button>
+                <Button 
+                  variant="outline"
+                  onClick={() => navigate('/for-workers')}
+                  className="w-full"
+                >
+                  Back to Worker Portal
+                </Button>
+              </div>
             </div>
           </div>
         </main>
@@ -221,7 +230,7 @@ export default function WorkerDashboard() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navbar />
+      <WorkerNavbar />
       
       <main className="pt-20 pb-16">
         <div className="container-main px-4 md:px-8">
