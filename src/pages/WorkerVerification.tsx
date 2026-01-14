@@ -32,7 +32,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Navbar } from '@/components/Navbar';
+import { WorkerNavbar } from '@/components/WorkerNavbar';
 import { Footer } from '@/components/Footer';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -151,7 +151,7 @@ export default function WorkerVerification() {
   if (!user) {
     return (
       <div className="min-h-screen bg-background">
-        <Navbar />
+        <WorkerNavbar />
         <main className="pt-20 section-padding">
           <div className="container-main text-center">
             <h1 className="text-2xl font-bold mb-4">Access Restricted</h1>
@@ -168,7 +168,7 @@ export default function WorkerVerification() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navbar />
+      <WorkerNavbar />
       
       <main className="pt-20 pb-16">
         <div className="container-main px-4 md:px-8">

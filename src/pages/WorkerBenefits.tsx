@@ -11,7 +11,7 @@ import {
   Phone
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Navbar } from '@/components/Navbar';
+import { WorkerNavbar } from '@/components/WorkerNavbar';
 import { Footer } from '@/components/Footer';
 
 const benefitCards = [
@@ -71,7 +71,7 @@ export default function WorkerBenefits() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navbar />
+      <WorkerNavbar />
       
       <main className="pt-20">
         {/* Header */}

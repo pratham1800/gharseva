@@ -23,7 +23,7 @@ const signupSchema = z.object({
 
 export default function WorkerAuth() {
   const navigate = useNavigate();
-  const { user, loading: authLoading, signIn, signUp, signInWithGoogle } = useAuth();
+  const { user, loading: authLoading, signIn, signUp, signInWithGoogle, signOut } = useAuth();
   const { toast } = useToast();
   
   const [mode, setMode] = useState<'login' | 'signup'>('login');
@@ -32,24 +32,30 @@ export default function WorkerAuth() {
   const [fullName, setFullName] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [showSwitchOption, setShowSwitchOption] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  // If user is already logged in as worker, redirect to worker dashboard
+  // Check if user is already logged in - show option to continue or switch
   useEffect(() => {
-    const checkWorkerStatus = async () => {
-      if (user && !authLoading) {
-        // Update profile to set role as worker
-        await supabase
-          .from('profiles')
-          .update({ user_role: 'worker' })
-          .eq('id', user.id);
-        
-        navigate('/for-workers/dashboard');
-      }
-    };
+    if (user && !authLoading) {
+      setShowSwitchOption(true);
+    }
+  }, [user, authLoading]);
+
+  const handleContinueAsWorker = async () => {
+    // Update profile to set role as worker
+    await supabase
+      .from('profiles')
+      .update({ user_role: 'worker' })
+      .eq('id', user!.id);
     
-    checkWorkerStatus();
-  }, [user, authLoading, navigate]);
+    navigate('/for-workers/dashboard');
+  };
+
+  const handleSwitchAccount = async () => {
+    await signOut();
+    setShowSwitchOption(false);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -145,6 +151,70 @@ export default function WorkerAuth() {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  // Show option to continue or switch account if user is already logged in
+  if (showSwitchOption && user) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-secondary/5 via-background to-primary/5 flex items-center justify-center p-4">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="w-full max-w-md"
+        >
+          <Button
+            variant="ghost"
+            onClick={() => navigate('/for-workers')}
+            className="mb-6"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to Worker Portal
+          </Button>
+
+          <div className="bg-card rounded-2xl shadow-elevated overflow-hidden p-8">
+            <div className="w-14 h-14 rounded-full bg-gradient-to-br from-secondary to-primary flex items-center justify-center mx-auto mb-4">
+              <User className="w-7 h-7 text-white" />
+            </div>
+            <h2 className="text-2xl font-bold text-center text-foreground mb-2">
+              Already Signed In
+            </h2>
+            <p className="text-muted-foreground text-center mb-6">
+              You're signed in as <strong>{user.email}</strong>
+            </p>
+
+            <div className="space-y-3">
+              <Button 
+                className="w-full" 
+                size="lg"
+                onClick={handleContinueAsWorker}
+              >
+                <Briefcase className="w-4 h-4 mr-2" />
+                Continue as Worker
+              </Button>
+              <Button 
+                variant="outline" 
+                className="w-full" 
+                size="lg"
+                onClick={handleSwitchAccount}
+              >
+                Switch to Different Account
+              </Button>
+            </div>
+
+            <p className="text-center text-muted-foreground mt-6 text-sm">
+              Looking to hire help?{' '}
+              <button
+                type="button"
+                onClick={() => navigate('/')}
+                className="text-primary hover:underline font-medium"
+              >
+                Go to Owner Portal
+              </button>
+            </p>
+          </div>
+        </motion.div>
       </div>
     );
   }
