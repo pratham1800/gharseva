@@ -4,34 +4,35 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X, ChevronDown, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
+import { useLanguage } from '@/hooks/useLanguage';
 import { AuthModal } from '@/components/AuthModal';
 import { UserMenu } from '@/components/UserMenu';
 
 const languages = [
-  { code: 'en', label: 'EN' },
-  { code: 'hi', label: 'हिंदी' },
-  { code: 'kn', label: 'ಕನ್ನಡ' },
-  { code: 'mr', label: 'मराठी' },
-];
-
-const navLinks = [
-  { label: 'Services', href: '/#services' },
-  { label: 'How It Works', href: '/#how-it-works' },
-  { label: 'Subscription', href: '/#subscription' },
-  { label: 'For Workers', href: '/for-workers' },
-  { label: 'About Us', href: '/#about' },
+  { code: 'en' as const, label: 'EN' },
+  { code: 'hi' as const, label: 'हिंदी' },
+  { code: 'kn' as const, label: 'ಕನ್ನಡ' },
+  { code: 'mr' as const, label: 'मराठी' },
 ];
 
 export const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
-  const [currentLang, setCurrentLang] = useState('en');
   const [showLangDropdown, setShowLangDropdown] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
 
   const { user, loading } = useAuth();
+  const { language, setLanguage, t } = useLanguage();
+
+  const navLinks = [
+    { label: t('services'), href: '/#services' },
+    { label: t('howItWorks'), href: '/#how-it-works' },
+    { label: t('subscription'), href: '/#subscription' },
+    { label: t('forWorkers'), href: '/for-workers' },
+    { label: t('aboutUs'), href: '/#about' },
+  ];
 
   const openAuthModal = (mode: 'login' | 'signup') => {
     setAuthMode(mode);
@@ -101,13 +102,12 @@ export const Navbar = () => {
 
           {/* Right Side Actions */}
           <div className="hidden lg:flex items-center gap-4">
-            {/* Language Switcher */}
             <div className="relative">
               <button
                 onClick={() => setShowLangDropdown(!showLangDropdown)}
                 className="flex items-center gap-1 px-3 py-2 rounded-lg hover:bg-muted transition-colors text-sm font-medium"
               >
-                {languages.find((l) => l.code === currentLang)?.label}
+                {languages.find((l) => l.code === language)?.label}
                 <ChevronDown className="w-4 h-4" />
               </button>
               <AnimatePresence>
@@ -122,11 +122,11 @@ export const Navbar = () => {
                       <button
                         key={lang.code}
                         onClick={() => {
-                          setCurrentLang(lang.code);
+                          setLanguage(lang.code);
                           setShowLangDropdown(false);
                         }}
                         className={`w-full px-4 py-2 text-left hover:bg-muted transition-colors text-sm ${
-                          currentLang === lang.code ? 'bg-muted font-semibold' : ''
+                          language === lang.code ? 'bg-muted font-semibold' : ''
                         }`}
                       >
                         {lang.label}
@@ -146,10 +146,10 @@ export const Navbar = () => {
               <>
                 <Button variant="ghost" size="sm" onClick={() => openAuthModal('login')}>
                   <User className="w-4 h-4 mr-2" />
-                  Login
+                  {t('login')}
                 </Button>
                 <Button variant="default" size="default" onClick={() => openAuthModal('signup')}>
-                  Sign Up
+                  {t('signUp')}
                 </Button>
               </>
             )}
@@ -189,9 +189,9 @@ export const Navbar = () => {
                   {languages.map((lang) => (
                     <button
                       key={lang.code}
-                      onClick={() => setCurrentLang(lang.code)}
+                      onClick={() => setLanguage(lang.code)}
                       className={`px-3 py-1.5 rounded-full text-sm transition-colors ${
-                        currentLang === lang.code
+                        language === lang.code
                           ? 'bg-primary text-primary-foreground'
                           : 'bg-muted text-muted-foreground'
                       }`}
@@ -211,10 +211,10 @@ export const Navbar = () => {
                 ) : (
                   <div className="flex gap-3 pt-4">
                     <Button variant="outline" className="flex-1" onClick={() => openAuthModal('login')}>
-                      Login
+                      {t('login')}
                     </Button>
                     <Button variant="default" className="flex-1" onClick={() => openAuthModal('signup')}>
-                      Sign Up
+                      {t('signUp')}
                     </Button>
                   </div>
                 )}

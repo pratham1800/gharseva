@@ -13,7 +13,11 @@ import {
   Loader2,
   MessageCircle,
   Star,
-  ArrowLeft
+  ArrowLeft,
+  Users,
+  Trophy,
+  Award,
+  CalendarX
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -22,6 +26,7 @@ import { Footer } from '@/components/Footer';
 import { VerificationModal } from '@/components/VerificationModal';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { useLanguage } from '@/hooks/useLanguage';
 
 interface WorkerData {
   id: string;
@@ -38,6 +43,15 @@ interface WorkerData {
   scheduled_call_date: string | null;
   assigned_customer_id: string | null;
   id_proof_url: string | null;
+}
+
+interface WorkerMetrics {
+  currentEmployers: number;
+  totalLeaves: number;
+  lateDays: number;
+  bestWorkerAwards: number;
+  totalAwards: number;
+  awardsThisYear: number;
 }
 
 const statusConfig: Record<string, { label: string; labelHi: string; color: string; icon: any }> = {
@@ -89,9 +103,18 @@ const workTypeLabels: Record<string, string> = {
 export default function WorkerDashboard() {
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
+  const { t } = useLanguage();
   const [worker, setWorker] = useState<WorkerData | null>(null);
   const [loading, setLoading] = useState(true);
   const [showVerificationModal, setShowVerificationModal] = useState(false);
+  const [metrics, setMetrics] = useState<WorkerMetrics>({
+    currentEmployers: 0,
+    totalLeaves: 0,
+    lateDays: 0,
+    bestWorkerAwards: 0,
+    totalAwards: 0,
+    awardsThisYear: 0
+  });
 
   useEffect(() => {
     if (!authLoading && user) {
@@ -273,80 +296,116 @@ export default function WorkerDashboard() {
           </motion.div>
 
           <div className="grid lg:grid-cols-3 gap-6">
-            {/* Status Card */}
+            {/* Profile Card with Avatar */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
-              className="lg:col-span-2 card-elevated p-6"
+              className="card-elevated p-6"
             >
-              <h2 className="text-lg font-semibold text-foreground mb-4">
-                Current Status
-              </h2>
-              
-              <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full ${status.color} mb-6`}>
-                <StatusIcon className="w-5 h-5" />
-                <span className="font-medium">{status.label}</span>
+              <div className="flex flex-col items-center text-center">
+                {/* Profile Picture */}
+                <div className="w-24 h-24 rounded-full bg-muted flex items-center justify-center mb-4 overflow-hidden border-4 border-border">
+                  <User className="w-12 h-12 text-muted-foreground" />
+                </div>
+                <h2 className="text-xl font-bold text-foreground mb-1">{worker.name}</h2>
+                <p className="text-sm text-muted-foreground mb-4">{workTypeLabels[worker.work_type] || worker.work_type}</p>
+                
+                {/* Verification Status Badge */}
+                <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full ${status.color}`}>
+                  <StatusIcon className="w-4 h-4" />
+                  <span className="text-sm font-medium">{status.label}</span>
+                </div>
               </div>
-              <p className="text-muted-foreground text-sm mb-6">{status.labelHi}</p>
-
-              {/* Trial Progress */}
-              {worker.status === 'trial_active' && worker.trial_end_date && (
-                <div className="bg-muted/50 rounded-xl p-4 mb-6">
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-sm font-medium">Trial Progress</span>
-                    <span className="text-sm text-primary font-bold">
-                      {getDaysRemaining()} days remaining
-                    </span>
-                  </div>
-                  <Progress value={getTrialProgress()} className="h-3" />
-                </div>
-              )}
-
-              {/* Scheduled Call */}
-              {worker.scheduled_call_date && (
-                <div className="bg-primary/5 border border-primary/20 rounded-xl p-4">
-                  <div className="flex items-center gap-3">
-                    <Calendar className="w-10 h-10 text-primary" />
-                    <div>
-                      <p className="font-medium text-foreground">Scheduled Call</p>
-                      <p className="text-sm text-muted-foreground">
-                        {new Date(worker.scheduled_call_date).toLocaleDateString('en-IN', {
-                          weekday: 'long',
-                          year: 'numeric',
-                          month: 'long',
-                          day: 'numeric',
-                          hour: '2-digit',
-                          minute: '2-digit'
-                        })}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              )}
             </motion.div>
 
-            {/* Quick Actions */}
+            {/* Metrics Cards */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
-              className="card-elevated p-6"
+              className="lg:col-span-2 grid sm:grid-cols-2 lg:grid-cols-3 gap-4"
             >
-              <h2 className="text-lg font-semibold text-foreground mb-4">
-                Need Help?
-              </h2>
-              <Button 
-                className="w-full mb-3"
-                onClick={() => window.open('https://wa.me/919876543210', '_blank')}
-              >
-                <MessageCircle className="w-4 h-4 mr-2" />
-                Contact Support
-              </Button>
-              <p className="text-xs text-muted-foreground text-center">
-                Available Mon-Sat, 9 AM - 6 PM
-              </p>
+              <div className="card-elevated p-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center">
+                    <Users className="w-5 h-5 text-blue-600" />
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">{t('currentEmployers')}</p>
+                    <p className="text-xl font-bold text-foreground">{metrics.currentEmployers}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="card-elevated p-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center">
+                    <CalendarX className="w-5 h-5 text-amber-600" />
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">{t('totalLeaves')}</p>
+                    <p className="text-xl font-bold text-foreground">{metrics.totalLeaves}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="card-elevated p-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-red-100 flex items-center justify-center">
+                    <Clock className="w-5 h-5 text-red-600" />
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">{t('lateDays')}</p>
+                    <p className="text-xl font-bold text-foreground">{metrics.lateDays}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="card-elevated p-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-yellow-100 flex items-center justify-center">
+                    <Trophy className="w-5 h-5 text-yellow-600" />
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">{t('bestWorkerAwards')}</p>
+                    <p className="text-xl font-bold text-foreground">{metrics.bestWorkerAwards}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="card-elevated p-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-purple-100 flex items-center justify-center">
+                    <Award className="w-5 h-5 text-purple-600" />
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">{t('awardsThisYear')}</p>
+                    <p className="text-xl font-bold text-foreground">{metrics.awardsThisYear}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="card-elevated p-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-green-100 flex items-center justify-center">
+                    <Star className="w-5 h-5 text-green-600" />
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">{t('totalAwards')}</p>
+                    <p className="text-xl font-bold text-foreground">{metrics.totalAwards}</p>
+                  </div>
+                </div>
+              </div>
             </motion.div>
+
+            {/* Status Card */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="lg:col-span-2 card-elevated p-6"
+            >
 
             {/* Profile Info */}
             <motion.div

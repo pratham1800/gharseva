@@ -1,26 +1,27 @@
 import { useState } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, ChevronDown, Briefcase, User, LogOut, LayoutDashboard, Gift, HelpCircle, UserCircle } from 'lucide-react';
+import { Menu, X, ChevronDown, Briefcase, User, LogOut, LayoutDashboard, Gift, HelpCircle, UserCircle, IndianRupee } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
+import { useLanguage } from '@/hooks/useLanguage';
 
 const languages = [
-  { code: 'en', label: 'EN' },
-  { code: 'hi', label: 'हिंदी' },
-  { code: 'kn', label: 'ಕನ್ನಡ' },
-  { code: 'mr', label: 'मराठी' },
+  { code: 'en' as const, label: 'EN' },
+  { code: 'hi' as const, label: 'हिंदी' },
+  { code: 'kn' as const, label: 'ಕನ್ನಡ' },
+  { code: 'mr' as const, label: 'मराठी' },
 ];
 
 export const WorkerNavbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
-  const [currentLang, setCurrentLang] = useState('en');
   const [showLangDropdown, setShowLangDropdown] = useState(false);
   const [showUserDropdown, setShowUserDropdown] = useState(false);
 
   const { user, signOut } = useAuth();
+  const { language, setLanguage, t } = useLanguage();
 
   const handleSignOut = async () => {
     await signOut();
@@ -29,9 +30,9 @@ export const WorkerNavbar = () => {
 
   // Worker-specific nav links - NO Services or Subscription plans
   const navLinks = [
-    { label: 'Benefits', href: '/for-workers/benefits', icon: Gift },
-    { label: 'My Dashboard', href: '/for-workers/dashboard', icon: LayoutDashboard },
-    { label: 'How It Works', href: '/for-workers/how-it-works', icon: HelpCircle },
+    { label: t('benefits'), href: '/for-workers/benefits', icon: Gift },
+    { label: t('myDashboard'), href: '/for-workers/dashboard', icon: LayoutDashboard },
+    { label: t('howItWorks'), href: '/for-workers/how-it-works', icon: HelpCircle },
   ];
 
   const isActive = (path: string) => location.pathname === path;
@@ -94,7 +95,7 @@ export const WorkerNavbar = () => {
               onClick={() => setShowLangDropdown(!showLangDropdown)}
               className="flex items-center gap-1 px-3 py-2 rounded-lg hover:bg-muted transition-colors text-sm font-medium"
             >
-              {languages.find((l) => l.code === currentLang)?.label}
+              {languages.find((l) => l.code === language)?.label}
               <ChevronDown className="w-4 h-4" />
             </button>
             <AnimatePresence>
@@ -109,11 +110,11 @@ export const WorkerNavbar = () => {
                     <button
                       key={lang.code}
                       onClick={() => {
-                        setCurrentLang(lang.code);
+                        setLanguage(lang.code);
                         setShowLangDropdown(false);
                       }}
                       className={`w-full px-4 py-2 text-left hover:bg-muted transition-colors text-sm ${
-                        currentLang === lang.code ? 'bg-muted font-semibold' : ''
+                        language === lang.code ? 'bg-muted font-semibold' : ''
                       }`}
                     >
                       {lang.label}
@@ -179,7 +180,7 @@ export const WorkerNavbar = () => {
                           className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-muted transition-colors text-left"
                         >
                           <UserCircle className="w-4 h-4 text-muted-foreground" />
-                          <span className="text-sm text-foreground">My Profile</span>
+                          <span className="text-sm text-foreground">{t('myProfile')}</span>
                         </button>
                         <button
                           onClick={() => {
@@ -189,7 +190,17 @@ export const WorkerNavbar = () => {
                           className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-muted transition-colors text-left"
                         >
                           <Briefcase className="w-4 h-4 text-muted-foreground" />
-                          <span className="text-sm text-foreground">My Bookings</span>
+                          <span className="text-sm text-foreground">{t('myBookings')}</span>
+                        </button>
+                        <button
+                          onClick={() => {
+                            navigate('/for-workers/earnings');
+                            setShowUserDropdown(false);
+                          }}
+                          className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-muted transition-colors text-left"
+                        >
+                          <IndianRupee className="w-4 h-4 text-muted-foreground" />
+                          <span className="text-sm text-foreground">{t('myEarnings')}</span>
                         </button>
                         <button
                           onClick={() => {
@@ -199,7 +210,7 @@ export const WorkerNavbar = () => {
                           className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-muted transition-colors text-left text-destructive"
                         >
                           <LogOut className="w-4 h-4" />
-                          <span className="text-sm">Sign Out</span>
+                          <span className="text-sm">{t('signOut')}</span>
                         </button>
                       </div>
                     </motion.div>
@@ -258,7 +269,7 @@ export const WorkerNavbar = () => {
                     className="flex items-center gap-3 w-full text-left py-2 font-medium text-foreground hover:text-primary"
                   >
                     <UserCircle className="w-5 h-5" />
-                    My Profile
+                    {t('myProfile')}
                   </button>
                   <button
                     onClick={() => {
@@ -268,7 +279,17 @@ export const WorkerNavbar = () => {
                     className="flex items-center gap-3 w-full text-left py-2 font-medium text-foreground hover:text-primary"
                   >
                     <Briefcase className="w-5 h-5" />
-                    My Bookings
+                    {t('myBookings')}
+                  </button>
+                  <button
+                    onClick={() => {
+                      navigate('/for-workers/earnings');
+                      setIsOpen(false);
+                    }}
+                    className="flex items-center gap-3 w-full text-left py-2 font-medium text-foreground hover:text-primary"
+                  >
+                    <IndianRupee className="w-5 h-5" />
+                    {t('myEarnings')}
                   </button>
                 </>
               )}
@@ -286,9 +307,9 @@ export const WorkerNavbar = () => {
                 {languages.map((lang) => (
                   <button
                     key={lang.code}
-                    onClick={() => setCurrentLang(lang.code)}
+                    onClick={() => setLanguage(lang.code)}
                     className={`px-3 py-1.5 rounded-full text-sm transition-colors ${
-                      currentLang === lang.code
+                      language === lang.code
                         ? 'bg-secondary text-secondary-foreground'
                         : 'bg-muted text-muted-foreground'
                     }`}
