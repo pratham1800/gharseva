@@ -10,7 +10,9 @@ import {
   Loader2, 
   ArrowLeft,
   AlertTriangle,
-  Briefcase
+  Briefcase,
+  Pencil,
+  X
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -38,6 +40,7 @@ interface WorkerData {
   phone: string;
   work_type: string;
   residential_address: string | null;
+  id_proof_url: string | null;
 }
 
 const WorkerProfile = () => {
@@ -50,6 +53,9 @@ const WorkerProfile = () => {
   const [showLocationWarning, setShowLocationWarning] = useState(false);
   const [pendingLocation, setPendingLocation] = useState('');
   const [worker, setWorker] = useState<WorkerData | null>(null);
+  
+  // Edit mode states
+  const [editingField, setEditingField] = useState<string | null>(null);
   
   const [formData, setFormData] = useState({
     name: '',
@@ -132,6 +138,23 @@ const WorkerProfile = () => {
     setPendingLocation('');
   };
 
+  const startEditing = (field: string) => {
+    setEditingField(field);
+  };
+
+  const cancelEditing = () => {
+    // Reset to original values
+    if (worker) {
+      setFormData({
+        name: worker.name || '',
+        email: user?.email || '',
+        phone: worker.phone || '',
+        address: worker.residential_address || ''
+      });
+    }
+    setEditingField(null);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
@@ -162,6 +185,9 @@ const WorkerProfile = () => {
           updated_at: new Date().toISOString()
         });
 
+      setEditingField(null);
+      setOriginalAddress(formData.address);
+      
       toast({
         title: 'Profile Updated',
         description: 'Your profile has been saved successfully.',
@@ -190,6 +216,94 @@ const WorkerProfile = () => {
     return null;
   }
 
+  // Profile picture - use default silhouette if none
+  const hasProfilePicture = worker?.id_proof_url; // In future, add profile_picture_url field
+
+  const EditableField = ({ 
+    field, 
+    label, 
+    icon: Icon, 
+    value, 
+    disabled = false,
+    type = 'text',
+    isTextarea = false
+  }: { 
+    field: string; 
+    label: string; 
+    icon: any; 
+    value: string;
+    disabled?: boolean;
+    type?: string;
+    isTextarea?: boolean;
+  }) => {
+    const isEditing = editingField === field;
+    
+    return (
+      <div className="space-y-2">
+        <Label className="flex items-center gap-2">
+          <Icon className="w-4 h-4 text-muted-foreground" />
+          {label}
+        </Label>
+        <div className="relative">
+          {isEditing ? (
+            isTextarea ? (
+              <Textarea
+                value={value}
+                onChange={(e) => field === 'address' 
+                  ? handleAddressChange(e.target.value)
+                  : setFormData(prev => ({ ...prev, [field]: e.target.value }))
+                }
+                placeholder={`Enter your ${label.toLowerCase()}`}
+                rows={3}
+                className="pr-10"
+                autoFocus
+              />
+            ) : (
+              <Input
+                type={type}
+                value={value}
+                onChange={(e) => setFormData(prev => ({ ...prev, [field]: e.target.value }))}
+                placeholder={`Enter your ${label.toLowerCase()}`}
+                className="pr-10"
+                disabled={disabled}
+                autoFocus
+              />
+            )
+          ) : (
+            <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+              <span className={`${value ? 'text-foreground' : 'text-muted-foreground'}`}>
+                {value || `No ${label.toLowerCase()} set`}
+              </span>
+              {!disabled && (
+                <button
+                  type="button"
+                  onClick={() => startEditing(field)}
+                  className="p-1.5 hover:bg-muted rounded-md transition-colors"
+                >
+                  <Pencil className="w-4 h-4 text-muted-foreground hover:text-foreground" />
+                </button>
+              )}
+            </div>
+          )}
+          {isEditing && (
+            <button
+              type="button"
+              onClick={cancelEditing}
+              className="absolute right-2 top-2 p-1 hover:bg-muted rounded-md"
+            >
+              <X className="w-4 h-4 text-muted-foreground" />
+            </button>
+          )}
+        </div>
+        {disabled && (
+          <p className="text-xs text-muted-foreground">
+            {label} cannot be changed
+          </p>
+        )}
+      </div>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <WorkerNavbar />
@@ -214,7 +328,7 @@ const WorkerProfile = () => {
                 My Profile
               </h1>
               <p className="text-muted-foreground">
-                Update your personal and work information
+                View and update your personal information
               </p>
             </div>
 
@@ -222,89 +336,83 @@ const WorkerProfile = () => {
               <div className="card-elevated p-6 space-y-6">
                 {/* Avatar Section */}
                 <div className="flex items-center gap-4">
-                  <div className="w-20 h-20 rounded-full bg-secondary/10 flex items-center justify-center">
-                    <Briefcase className="w-10 h-10 text-secondary" />
+                  <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center overflow-hidden border-2 border-border">
+                    {hasProfilePicture ? (
+                      <img 
+                        src={`${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/worker-documents/${worker?.id_proof_url}`} 
+                        alt="Profile"
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                          e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                        }}
+                      />
+                    ) : null}
+                    <User className={`w-10 h-10 text-muted-foreground ${hasProfilePicture ? 'hidden' : ''}`} />
                   </div>
                   <div>
                     <h3 className="font-semibold text-foreground">{formData.name || 'Worker'}</h3>
-                    <p className="text-sm text-muted-foreground">{worker?.work_type || 'Worker'}</p>
+                    <p className="text-sm text-muted-foreground flex items-center gap-1">
+                      <Briefcase className="w-3 h-3" />
+                      {worker?.work_type?.replace('_', ' ') || 'Worker'}
+                    </p>
                   </div>
                 </div>
 
-                {/* Full Name */}
-                <div className="space-y-2">
-                  <Label htmlFor="name" className="flex items-center gap-2">
-                    <User className="w-4 h-4 text-muted-foreground" />
-                    Full Name
-                  </Label>
-                  <Input
-                    id="name"
-                    value={formData.name}
-                    onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                    placeholder="Enter your full name"
-                  />
-                </div>
+                {/* Editable Fields */}
+                <EditableField
+                  field="name"
+                  label="Full Name"
+                  icon={User}
+                  value={formData.name}
+                />
 
-                {/* Email (Read-only) */}
-                <div className="space-y-2">
-                  <Label htmlFor="email" className="flex items-center gap-2">
-                    <Mail className="w-4 h-4 text-muted-foreground" />
-                    Email
-                  </Label>
-                  <Input
-                    id="email"
-                    value={formData.email}
-                    disabled
-                    className="bg-muted"
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    Email cannot be changed
-                  </p>
-                </div>
+                <EditableField
+                  field="email"
+                  label="Email"
+                  icon={Mail}
+                  value={formData.email}
+                  disabled={true}
+                />
 
-                {/* Phone */}
-                <div className="space-y-2">
-                  <Label htmlFor="phone" className="flex items-center gap-2">
-                    <Phone className="w-4 h-4 text-muted-foreground" />
-                    Phone Number
-                  </Label>
-                  <Input
-                    id="phone"
-                    value={formData.phone}
-                    onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
-                    placeholder="+91 98765 43210"
-                  />
-                </div>
+                <EditableField
+                  field="phone"
+                  label="Phone Number"
+                  icon={Phone}
+                  value={formData.phone}
+                  type="tel"
+                />
 
-                {/* Address */}
-                <div className="space-y-2">
-                  <Label htmlFor="address" className="flex items-center gap-2">
-                    <MapPin className="w-4 h-4 text-muted-foreground" />
-                    Residential Address
-                  </Label>
-                  <Textarea
-                    id="address"
-                    value={formData.address}
-                    onChange={(e) => handleAddressChange(e.target.value)}
-                    placeholder="Enter your full address"
-                    rows={3}
-                  />
-                </div>
+                <EditableField
+                  field="address"
+                  label="Residential Address"
+                  icon={MapPin}
+                  value={formData.address}
+                  isTextarea={true}
+                />
               </div>
 
-              <Button type="submit" className="w-full" size="lg" disabled={saving}>
-                {saving ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Saving...
-                  </>
-                ) : (
-                  <>
-                    <Save className="w-4 h-4 mr-2" />
-                    Save Changes
-                  </>
-                )}
-              </Button>
+              {/* Save Button - only show when editing */}
+              {editingField && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                >
+                  <Button type="submit" className="w-full" size="lg" disabled={saving}>
+                    {saving ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Saving...
+                      </>
+                    ) : (
+                      <>
+                        <Save className="w-4 h-4 mr-2" />
+                        Save Changes
+                      </>
+                    )}
+                  </Button>
+                </motion.div>
+              )}
             </form>
           </motion.div>
         </div>

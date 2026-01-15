@@ -19,6 +19,7 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { WorkerNavbar } from '@/components/WorkerNavbar';
 import { Footer } from '@/components/Footer';
+import { VerificationModal } from '@/components/VerificationModal';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -36,6 +37,7 @@ interface WorkerData {
   trial_end_date: string | null;
   scheduled_call_date: string | null;
   assigned_customer_id: string | null;
+  id_proof_url: string | null;
 }
 
 const statusConfig: Record<string, { label: string; labelHi: string; color: string; icon: any }> = {
@@ -89,6 +91,7 @@ export default function WorkerDashboard() {
   const { user, loading: authLoading } = useAuth();
   const [worker, setWorker] = useState<WorkerData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showVerificationModal, setShowVerificationModal] = useState(false);
 
   useEffect(() => {
     if (!authLoading && user) {
@@ -124,6 +127,10 @@ export default function WorkerDashboard() {
           console.error('Error fetching worker:', workerError);
         } else {
           setWorker(workerData);
+          // Show verification modal if worker is unverified and has no documents
+          if (!workerData.id_proof_url && workerData.status !== 'verified' && workerData.status !== 'pending_verification') {
+            setShowVerificationModal(true);
+          }
         }
       }
     } catch (error) {
@@ -435,6 +442,20 @@ export default function WorkerDashboard() {
           </div>
         </div>
       </main>
+
+      {/* Verification Modal */}
+      {worker && (
+        <VerificationModal
+          isOpen={showVerificationModal}
+          onClose={() => setShowVerificationModal(false)}
+          workerId={worker.id}
+          onSuccess={() => {
+            // Refresh worker data
+            setLoading(true);
+            fetchWorkerData();
+          }}
+        />
+      )}
 
       <Footer />
     </div>

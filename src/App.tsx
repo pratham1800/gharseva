@@ -17,6 +17,7 @@ import WorkerDashboard from "./pages/WorkerDashboard";
 import WorkerVerification from "./pages/WorkerVerification";
 import WorkerAuth from "./pages/WorkerAuth";
 import WorkerProfile from "./pages/WorkerProfile";
+import WorkerBookings from "./pages/WorkerBookings";
 import WorkerEarnings from "./pages/WorkerEarnings";
 import WorkerHowItWorks from "./pages/WorkerHowItWorks";
 import NotFound from "./pages/NotFound";
@@ -44,6 +45,7 @@ const App = () => (
             <Route path="/for-workers/dashboard" element={<WorkerDashboard />} />
             <Route path="/for-workers/verification" element={<WorkerVerification />} />
             <Route path="/for-workers/profile" element={<WorkerProfile />} />
+            <Route path="/for-workers/bookings" element={<WorkerBookings />} />
             <Route path="/for-workers/earnings" element={<WorkerEarnings />} />
             <Route path="/for-workers/how-it-works" element={<WorkerHowItWorks />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
