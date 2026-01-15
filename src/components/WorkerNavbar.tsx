@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, ChevronDown, Briefcase, User, LogOut, LayoutDashboard, Gift, HelpCircle, UserCircle, IndianRupee } from 'lucide-react';
+import { Menu, X, ChevronDown, Briefcase, User, LogOut, LayoutDashboard, Gift, HelpCircle, UserCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -183,23 +183,13 @@ export const WorkerNavbar = () => {
                         </button>
                         <button
                           onClick={() => {
-                            navigate('/for-workers/dashboard');
+                            navigate('/for-workers/bookings');
                             setShowUserDropdown(false);
                           }}
                           className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-muted transition-colors text-left"
                         >
-                          <LayoutDashboard className="w-4 h-4 text-muted-foreground" />
-                          <span className="text-sm text-foreground">My Dashboard</span>
-                        </button>
-                        <button
-                          onClick={() => {
-                            navigate('/for-workers/earnings');
-                            setShowUserDropdown(false);
-                          }}
-                          className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-muted transition-colors text-left"
-                        >
-                          <IndianRupee className="w-4 h-4 text-muted-foreground" />
-                          <span className="text-sm text-foreground">Earnings</span>
+                          <Briefcase className="w-4 h-4 text-muted-foreground" />
+                          <span className="text-sm text-foreground">My Bookings</span>
                         </button>
                         <button
                           onClick={() => {
@@ -272,13 +262,13 @@ export const WorkerNavbar = () => {
                   </button>
                   <button
                     onClick={() => {
-                      navigate('/for-workers/earnings');
+                      navigate('/for-workers/bookings');
                       setIsOpen(false);
                     }}
                     className="flex items-center gap-3 w-full text-left py-2 font-medium text-foreground hover:text-primary"
                   >
-                    <IndianRupee className="w-5 h-5" />
-                    Earnings
+                    <Briefcase className="w-5 h-5" />
+                    My Bookings
                   </button>
                 </>
               )}
