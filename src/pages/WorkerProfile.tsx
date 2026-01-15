@@ -12,15 +12,21 @@ import {
   AlertTriangle,
   Briefcase,
   Pencil,
-  X
+  X,
+  CheckCircle,
+  Clock,
+  Shield
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Badge } from '@/components/ui/badge';
 import { WorkerNavbar } from '@/components/WorkerNavbar';
 import { Footer } from '@/components/Footer';
+import { VerificationModal } from '@/components/VerificationModal';
 import { useAuth } from '@/hooks/useAuth';
+import { useLanguage } from '@/hooks/useLanguage';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import {
@@ -41,16 +47,21 @@ interface WorkerData {
   work_type: string;
   residential_address: string | null;
   id_proof_url: string | null;
+  status: string | null;
+  years_experience: number | null;
+  languages_spoken: string[] | null;
 }
 
 const WorkerProfile = () => {
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
+  const { t, language } = useLanguage();
   const { toast } = useToast();
   
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [showLocationWarning, setShowLocationWarning] = useState(false);
+  const [showVerificationModal, setShowVerificationModal] = useState(false);
   const [pendingLocation, setPendingLocation] = useState('');
   const [worker, setWorker] = useState<WorkerData | null>(null);
   
@@ -204,6 +215,36 @@ const WorkerProfile = () => {
     }
   };
 
+  const getStatusBadge = () => {
+    const status = worker?.status;
+    if (status === 'verified') {
+      return (
+        <Badge className="bg-green-500/10 text-green-600 border-green-500/30 gap-1">
+          <CheckCircle className="w-3 h-3" />
+          {t('verified')}
+        </Badge>
+      );
+    } else if (status === 'pending_verification') {
+      return (
+        <Badge className="bg-amber-500/10 text-amber-600 border-amber-500/30 gap-1">
+          <Clock className="w-3 h-3" />
+          {t('verificationPending')}
+        </Badge>
+      );
+    } else {
+      return (
+        <Badge className="bg-amber-500/10 text-amber-600 border-amber-500/30 gap-1">
+          <AlertTriangle className="w-3 h-3" />
+          {language === 'hi' ? 'सत्यापन आवश्यक' : language === 'kn' ? 'ಪರಿಶೀಲನೆ ಅಗತ್ಯವಿದೆ' : language === 'mr' ? 'पडताळणी आवश्यक' : 'Verification Required'}
+        </Badge>
+      );
+    }
+  };
+
+  const handleVerificationSuccess = () => {
+    fetchWorkerProfile();
+  };
+
   if (authLoading || loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -216,8 +257,10 @@ const WorkerProfile = () => {
     return null;
   }
 
-  // Profile picture - use default silhouette if none
-  const hasProfilePicture = worker?.id_proof_url; // In future, add profile_picture_url field
+  // Profile picture URL
+  const profilePictureUrl = worker?.id_proof_url 
+    ? `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/worker-documents/profile-${worker.id}` 
+    : null;
 
   const EditableField = ({ 
     field, 
@@ -240,7 +283,7 @@ const WorkerProfile = () => {
     
     return (
       <div className="space-y-2">
-        <Label className="flex items-center gap-2">
+        <Label className="flex items-center gap-2 text-sm font-medium">
           <Icon className="w-4 h-4 text-muted-foreground" />
           {label}
         </Label>
@@ -270,7 +313,7 @@ const WorkerProfile = () => {
               />
             )
           ) : (
-            <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+            <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg min-h-[44px]">
               <span className={`${value ? 'text-foreground' : 'text-muted-foreground'}`}>
                 {value || `No ${label.toLowerCase()} set`}
               </span>
@@ -304,19 +347,21 @@ const WorkerProfile = () => {
     );
   };
 
+  const needsVerification = !worker?.status || (worker?.status !== 'verified' && worker?.status !== 'pending_verification');
+
   return (
     <div className="min-h-screen bg-background">
       <WorkerNavbar />
       
       <main className="pt-20 pb-16">
-        <div className="container-main px-4 md:px-8 max-w-2xl mx-auto">
+        <div className="container-main px-4 md:px-8 max-w-4xl mx-auto">
           <Button 
             variant="ghost" 
             onClick={() => navigate('/for-workers/dashboard')}
             className="mb-6"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Dashboard
+            {language === 'hi' ? 'डैशबोर्ड पर वापस' : language === 'kn' ? 'ಡ್ಯಾಶ್‌ಬೋರ್ಡ್‌ಗೆ ಹಿಂತಿರುಗಿ' : language === 'mr' ? 'डॅशबोर्डवर परत' : 'Back to Dashboard'}
           </Button>
 
           <motion.div
@@ -325,94 +370,149 @@ const WorkerProfile = () => {
           >
             <div className="mb-8">
               <h1 className="text-3xl font-bold text-foreground mb-2">
-                My Profile
+                {t('myProfile')}
               </h1>
               <p className="text-muted-foreground">
-                View and update your personal information
+                {language === 'hi' ? 'अपनी व्यक्तिगत जानकारी देखें और अपडेट करें' : language === 'kn' ? 'ನಿಮ್ಮ ವೈಯಕ್ತಿಕ ಮಾಹಿತಿಯನ್ನು ವೀಕ್ಷಿಸಿ ಮತ್ತು ನವೀಕರಿಸಿ' : language === 'mr' ? 'तुमची वैयक्तिक माहिती पहा आणि अपडेट करा' : 'View and update your personal information'}
               </p>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="card-elevated p-6 space-y-6">
-                {/* Avatar Section */}
-                <div className="flex items-center gap-4">
-                  <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center overflow-hidden border-2 border-border">
-                    {hasProfilePicture ? (
-                      <img 
-                        src={`${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/worker-documents/${worker?.id_proof_url}`} 
-                        alt="Profile"
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          e.currentTarget.style.display = 'none';
-                          e.currentTarget.nextElementSibling?.classList.remove('hidden');
-                        }}
-                      />
-                    ) : null}
-                    <User className={`w-10 h-10 text-muted-foreground ${hasProfilePicture ? 'hidden' : ''}`} />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-foreground">{formData.name || 'Worker'}</h3>
-                    <p className="text-sm text-muted-foreground flex items-center gap-1">
-                      <Briefcase className="w-3 h-3" />
-                      {worker?.work_type?.replace('_', ' ') || 'Worker'}
-                    </p>
+            <form onSubmit={handleSubmit}>
+              <div className="grid lg:grid-cols-3 gap-6">
+                {/* Left Column - Status Badge */}
+                <div className="lg:col-span-1">
+                  <div className="card-elevated p-6 space-y-4 sticky top-24">
+                    <div className="flex flex-col items-center text-center">
+                      {getStatusBadge()}
+                      
+                      <div className="mt-4 p-4 bg-muted/50 rounded-lg w-full">
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
+                          <Shield className="w-4 h-4" />
+                          <span>{language === 'hi' ? 'सत्यापन स्थिति' : language === 'kn' ? 'ಪರಿಶೀಲನೆ ಸ್ಥಿತಿ' : language === 'mr' ? 'पडताळणी स्थिती' : 'Verification Status'}</span>
+                        </div>
+                        {worker?.status === 'verified' ? (
+                          <p className="text-sm text-green-600">
+                            {language === 'hi' ? 'आपका प्रोफ़ाइल सत्यापित है' : language === 'kn' ? 'ನಿಮ್ಮ ಪ್ರೊಫೈಲ್ ಪರಿಶೀಲಿಸಲಾಗಿದೆ' : language === 'mr' ? 'तुमचे प्रोफाइल सत्यापित आहे' : 'Your profile is verified'}
+                          </p>
+                        ) : worker?.status === 'pending_verification' ? (
+                          <p className="text-sm text-amber-600">
+                            {language === 'hi' ? 'आपके दस्तावेज़ समीक्षाधीन हैं' : language === 'kn' ? 'ನಿಮ್ಮ ದಾಖಲೆಗಳನ್ನು ಪರಿಶೀಲಿಸಲಾಗುತ್ತಿದೆ' : language === 'mr' ? 'तुमचे दस्तऐवज पुनरावलोकनाधीन आहेत' : 'Your documents are under review'}
+                          </p>
+                        ) : (
+                          <p className="text-sm text-muted-foreground">
+                            {language === 'hi' ? 'कृपया अपना सत्यापन पूरा करें' : language === 'kn' ? 'ದಯವಿಟ್ಟು ನಿಮ್ಮ ಪರಿಶೀಲನೆಯನ್ನು ಪೂರ್ಣಗೊಳಿಸಿ' : language === 'mr' ? 'कृपया तुमची पडताळणी पूर्ण करा' : 'Please complete your verification'}
+                          </p>
+                        )}
+                      </div>
+
+                      {needsVerification && worker && (
+                        <Button 
+                          type="button"
+                          className="w-full mt-4"
+                          onClick={() => setShowVerificationModal(true)}
+                        >
+                          <CheckCircle className="w-4 h-4 mr-2" />
+                          {t('completeVerification')}
+                        </Button>
+                      )}
+                    </div>
                   </div>
                 </div>
 
-                {/* Editable Fields */}
-                <EditableField
-                  field="name"
-                  label="Full Name"
-                  icon={User}
-                  value={formData.name}
-                />
+                {/* Right Column - Profile Picture & Name */}
+                <div className="lg:col-span-2 space-y-6">
+                  {/* Header Card with Picture and Name */}
+                  <div className="card-elevated p-6">
+                    <div className="flex items-center gap-6">
+                      <div className="w-24 h-24 rounded-full bg-muted flex items-center justify-center overflow-hidden border-4 border-border shadow-lg">
+                        {profilePictureUrl ? (
+                          <img 
+                            src={profilePictureUrl} 
+                            alt="Profile"
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              e.currentTarget.style.display = 'none';
+                            }}
+                          />
+                        ) : null}
+                        <User className={`w-12 h-12 text-muted-foreground ${profilePictureUrl ? 'hidden' : ''}`} />
+                      </div>
+                      <div>
+                        <h2 className="text-2xl font-bold text-foreground">{formData.name || 'Worker'}</h2>
+                        <p className="text-muted-foreground flex items-center gap-2 mt-1">
+                          <Briefcase className="w-4 h-4" />
+                          {worker?.work_type?.replace('_', ' ') || 'Worker'}
+                        </p>
+                        {worker?.years_experience && (
+                          <p className="text-sm text-muted-foreground mt-1">
+                            {worker.years_experience} {t('years')} {t('experience')}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
 
-                <EditableField
-                  field="email"
-                  label="Email"
-                  icon={Mail}
-                  value={formData.email}
-                  disabled={true}
-                />
+                  {/* Editable Fields Card */}
+                  <div className="card-elevated p-6 space-y-6">
+                    <h3 className="text-lg font-semibold text-foreground border-b border-border pb-3">
+                      {language === 'hi' ? 'संपर्क जानकारी' : language === 'kn' ? 'ಸಂಪರ್ಕ ಮಾಹಿತಿ' : language === 'mr' ? 'संपर्क माहिती' : 'Contact Information'}
+                    </h3>
+                    
+                    <EditableField
+                      field="name"
+                      label={language === 'hi' ? 'पूरा नाम' : language === 'kn' ? 'ಪೂರ್ಣ ಹೆಸರು' : language === 'mr' ? 'पूर्ण नाव' : 'Full Name'}
+                      icon={User}
+                      value={formData.name}
+                    />
 
-                <EditableField
-                  field="phone"
-                  label="Phone Number"
-                  icon={Phone}
-                  value={formData.phone}
-                  type="tel"
-                />
+                    <EditableField
+                      field="email"
+                      label={language === 'hi' ? 'ईमेल' : language === 'kn' ? 'ಇಮೇಲ್' : language === 'mr' ? 'ईमेल' : 'Email'}
+                      icon={Mail}
+                      value={formData.email}
+                      disabled={true}
+                    />
 
-                <EditableField
-                  field="address"
-                  label="Residential Address"
-                  icon={MapPin}
-                  value={formData.address}
-                  isTextarea={true}
-                />
+                    <EditableField
+                      field="phone"
+                      label={language === 'hi' ? 'फ़ोन नंबर' : language === 'kn' ? 'ಫೋನ್ ನಂಬರ್' : language === 'mr' ? 'फोन नंबर' : 'Phone Number'}
+                      icon={Phone}
+                      value={formData.phone}
+                      type="tel"
+                    />
+
+                    <EditableField
+                      field="address"
+                      label={language === 'hi' ? 'आवासीय पता' : language === 'kn' ? 'ವಾಸದ ವಿಳಾಸ' : language === 'mr' ? 'निवासी पत्ता' : 'Residential Address'}
+                      icon={MapPin}
+                      value={formData.address}
+                      isTextarea={true}
+                    />
+                  </div>
+
+                  {/* Save Button - only show when editing */}
+                  {editingField && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                    >
+                      <Button type="submit" className="w-full" size="lg" disabled={saving}>
+                        {saving ? (
+                          <>
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            {language === 'hi' ? 'सहेज रहा है...' : language === 'kn' ? 'ಉಳಿಸಲಾಗುತ್ತಿದೆ...' : language === 'mr' ? 'जतन करत आहे...' : 'Saving...'}
+                          </>
+                        ) : (
+                          <>
+                            <Save className="w-4 h-4 mr-2" />
+                            {t('save')} {language === 'hi' ? 'परिवर्तन' : language === 'kn' ? 'ಬದಲಾವಣೆಗಳು' : language === 'mr' ? 'बदल' : 'Changes'}
+                          </>
+                        )}
+                      </Button>
+                    </motion.div>
+                  )}
+                </div>
               </div>
-
-              {/* Save Button - only show when editing */}
-              {editingField && (
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                >
-                  <Button type="submit" className="w-full" size="lg" disabled={saving}>
-                    {saving ? (
-                      <>
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        Saving...
-                      </>
-                    ) : (
-                      <>
-                        <Save className="w-4 h-4 mr-2" />
-                        Save Changes
-                      </>
-                    )}
-                  </Button>
-                </motion.div>
-              )}
             </form>
           </motion.div>
         </div>
@@ -424,22 +524,32 @@ const WorkerProfile = () => {
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2">
               <AlertTriangle className="w-5 h-5 text-amber-500" />
-              Confirm Address Change
+              {language === 'hi' ? 'पता परिवर्तन की पुष्टि करें' : language === 'kn' ? 'ವಿಳಾಸ ಬದಲಾವಣೆಯನ್ನು ದೃಢೀಕರಿಸಿ' : language === 'mr' ? 'पत्ता बदल निश्चित करा' : 'Confirm Address Change'}
             </AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to change your address? This may affect your current workplaces as it appears to be significantly different from your previous location.
+              {language === 'hi' ? 'क्या आप वाकई अपना पता बदलना चाहते हैं? यह आपके वर्तमान कार्यस्थलों को प्रभावित कर सकता है।' : language === 'kn' ? 'ನಿಮ್ಮ ವಿಳಾಸವನ್ನು ಬದಲಾಯಿಸಲು ನೀವು ಖಚಿತವಾಗಿ ಬಯಸುವಿರಾ? ಇದು ನಿಮ್ಮ ಪ್ರಸ್ತುತ ಕೆಲಸದ ಸ್ಥಳಗಳ ಮೇಲೆ ಪರಿಣಾಮ ಬೀರಬಹುದು.' : language === 'mr' ? 'तुम्ही खात्री आहात की तुम्ही तुमचा पत्ता बदलू इच्छिता? हे तुमच्या सध्याच्या कामाच्या ठिकाणांवर परिणाम करू शकते.' : 'Are you sure you want to change your address? This may affect your current workplaces as it appears to be significantly different from your previous location.'}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel onClick={() => setPendingLocation('')}>
-              Cancel
+              {t('cancel')}
             </AlertDialogCancel>
             <AlertDialogAction onClick={confirmLocationChange}>
-              Yes, Change Address
+              {language === 'hi' ? 'हाँ, पता बदलें' : language === 'kn' ? 'ಹೌದು, ವಿಳಾಸ ಬದಲಾಯಿಸಿ' : language === 'mr' ? 'हो, पत्ता बदला' : 'Yes, Change Address'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Verification Modal */}
+      {worker && (
+        <VerificationModal
+          isOpen={showVerificationModal}
+          onClose={() => setShowVerificationModal(false)}
+          workerId={worker.id}
+          onSuccess={handleVerificationSuccess}
+        />
+      )}
 
       <Footer />
     </div>
