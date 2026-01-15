@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Upload, User, FileText, Loader2, CheckCircle, AlertTriangle, Camera } from 'lucide-react';
+import { Upload, User, FileText, Loader2, CheckCircle, AlertTriangle, Camera, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import {
@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/dialog';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useLanguage } from '@/hooks/useLanguage';
 
 interface VerificationModalProps {
   isOpen: boolean;
@@ -22,6 +23,7 @@ interface VerificationModalProps {
 
 export const VerificationModal = ({ isOpen, onClose, workerId, onSuccess }: VerificationModalProps) => {
   const { toast } = useToast();
+  const { t } = useLanguage();
   const [uploading, setUploading] = useState(false);
   const [profilePicture, setProfilePicture] = useState<File | null>(null);
   const [profilePreview, setProfilePreview] = useState<string | null>(null);
@@ -137,14 +139,24 @@ export const VerificationModal = ({ isOpen, onClose, workerId, onSuccess }: Veri
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && !uploading && onClose()}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
+      <DialogContent className="sm:max-w-md relative">
+        {/* Close Button */}
+        <button
+          onClick={onClose}
+          disabled={uploading}
+          className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none z-10"
+          aria-label="Close"
+        >
+          <X className="h-5 w-5" />
+        </button>
+
+        <DialogHeader className="pr-8">
           <DialogTitle className="flex items-center gap-2">
             <AlertTriangle className="w-5 h-5 text-amber-500" />
-            Complete Your Verification
+            {t('completeVerification')}
           </DialogTitle>
           <DialogDescription>
-            Upload your documents to get verified and start receiving work opportunities.
+            {t('uploadDocuments')}
           </DialogDescription>
         </DialogHeader>
 
