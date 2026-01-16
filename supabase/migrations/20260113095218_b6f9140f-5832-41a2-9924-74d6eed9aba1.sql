@@ -43,17 +43,29 @@ ON public.workers
 FOR SELECT
 USING (phone IS NOT NULL);
 
--- Allow authenticated users to insert workers (internal team)
-CREATE POLICY "Authenticated users can create workers"
-ON public.workers
-FOR INSERT
-WITH CHECK (auth.uid() IS NOT NULL);
+CREATE POLICY "Workers can update their own profile" 
+ON public.profiles 
+FOR UPDATE 
+USING (auth.uid() = id);
 
--- Allow authenticated users to update workers (internal team/admin)
-CREATE POLICY "Authenticated users can update workers"
-ON public.workers
-FOR UPDATE
-USING (auth.uid() IS NOT NULL);
+CREATE POLICY "Workers can insert their own profile" 
+ON public.profiles 
+FOR INSERT 
+WITH CHECK (auth.uid() = id);
+
+
+
+// -- Allow authenticated users to insert workers (internal team)
+// CREATE POLICY "Authenticated users can create workers"
+// ON public.workers
+// FOR INSERT
+// WITH CHECK (auth.uid() IS NOT NULL);
+
+// -- Allow authenticated users to update workers (internal team/admin)
+// CREATE POLICY "Authenticated users can update workers"
+// ON public.workers
+// FOR UPDATE
+// USING (auth.uid() IS NOT NULL);
 
 -- Create worker_auth table to link workers with auth
 CREATE TABLE public.worker_auth (
