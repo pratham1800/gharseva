@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Mail, Lock, User, Eye, EyeOff, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -43,6 +43,17 @@ export const AuthModal = ({ isOpen, onClose, defaultMode = 'login' }: AuthModalP
     setFullName('');
     setErrors({});
   };
+
+  // Sync mode with defaultMode when modal opens or defaultMode changes
+  useEffect(() => {
+    if (isOpen) {
+      setMode(defaultMode);
+      setEmail('');
+      setPassword('');
+      setFullName('');
+      setErrors({});
+    }
+  }, [isOpen, defaultMode]);
 
   const handleClose = () => {
     resetForm();
