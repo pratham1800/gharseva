@@ -8,65 +8,38 @@ import { AuthModal } from './AuthModal';
 
 const plans = [
   {
-    name: 'Light',
-    price: 299,
-    description: 'Perfect for single worker needs',
-    features: [
-      '1 active worker management',
-      'Worker verification & background check',
-      '7-day trial period',
-      'Up to 2 replacements per year',
-      'Basic customer support',
-      'Worker attendance dashboard',
-    ],
-    notIncluded: [
-      'Monthly performance reports',
-      'Substitute when worker is on leave',
-    ],
-    popular: false,
-    buttonVariant: 'outline' as const,
-  },
-  {
     name: 'Standard',
     price: 499,
-    description: 'Great for growing families',
+    description: 'Perfect for getting started',
     features: [
-      'Up to 2 active workers',
-      'Everything in Light',
-      'Monthly performance reports',
+      'Verified worker matching',
+      '7-day free trial period',
+      'Basic customer support',
+      'Monthly billing',
     ],
     notIncluded: [
-      'Substitute when worker is on leave',
+      'Backup worker on leave',
+      'Priority matching',
+      'Dedicated support manager',
     ],
     popular: false,
     buttonVariant: 'outline' as const,
   },
   {
-    name: 'Standard+',
-    price: 899,
+    name: 'Premium',
+    price: 999,
     description: 'Best value for families',
     features: [
-      'Up to 2 active workers',
       'Everything in Standard',
-      'Substitute when worker is on leave',
+      'Backup worker when main is on leave',
+      'Priority worker matching',
+      'Dedicated support manager',
+      '24/7 emergency support',
+      'Free replacement guarantee',
     ],
     notIncluded: [],
     popular: true,
     buttonVariant: 'hero' as const,
-  },
-  {
-    name: 'Premium',
-    price: 1299,
-    description: 'Complete household solution',
-    features: [
-      'Up to 3 active workers',
-      'Everything in Standard+',
-      'Priority customer support',
-      'Dedicated account manager',
-    ],
-    notIncluded: [],
-    popular: false,
-    buttonVariant: 'secondary' as const,
   },
 ];
 
@@ -164,7 +137,7 @@ export const SubscriptionPlans = () => {
         </motion.div>
 
         {/* Plans Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
+        <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
           {plans.map((plan, index) => (
             <motion.div
               key={plan.name}
@@ -172,10 +145,10 @@ export const SubscriptionPlans = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: index * 0.15 }}
-              className={`relative rounded-3xl p-6 ${
+              className={`relative rounded-3xl p-8 ${
                 plan.popular
                   ? 'bg-gradient-to-br from-primary/5 via-card to-secondary/5 border-2 border-primary/20 shadow-elevated'
-                  : 'bg-card shadow-card border border-border'
+                  : 'bg-card shadow-card'
               } ${isCurrentPlan(plan.name) ? 'ring-2 ring-primary ring-offset-2' : ''}`}
             >
               {/* Current Plan Badge */}
@@ -198,32 +171,33 @@ export const SubscriptionPlans = () => {
                 </div>
               )}
 
-              <div className="text-center mb-6">
-                <h3 className="text-xl font-bold text-foreground mb-2">{plan.name}</h3>
+              {/* Plan Header */}
+              <div className="text-center mb-8">
+                <h3 className="text-2xl font-bold text-foreground mb-2">{plan.name}</h3>
                 <p className="text-muted-foreground text-sm mb-4">{plan.description}</p>
                 <div className="flex items-baseline justify-center gap-1">
                   <span className="text-lg text-muted-foreground">₹</span>
-                  <span className="text-4xl font-bold text-foreground">{plan.price}</span>
-                  <span className="text-muted-foreground text-sm">/month</span>
+                  <span className="text-5xl font-bold text-foreground">{plan.price}</span>
+                  <span className="text-muted-foreground">/month</span>
                 </div>
               </div>
 
               {/* Features */}
-              <div className="space-y-3 mb-6 min-h-[200px]">
+              <div className="space-y-4 mb-8">
                 {plan.features.map((feature) => (
-                  <div key={feature} className="flex items-start gap-2">
-                    <div className="w-4 h-4 rounded-full bg-success/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <Check className="w-2.5 h-2.5 text-success" />
+                  <div key={feature} className="flex items-start gap-3">
+                    <div className="w-5 h-5 rounded-full bg-success/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <Check className="w-3 h-3 text-success" />
                     </div>
-                    <span className="text-foreground text-sm">{feature}</span>
+                    <span className="text-foreground">{feature}</span>
                   </div>
                 ))}
                 {plan.notIncluded.map((feature) => (
-                  <div key={feature} className="flex items-start gap-2 opacity-50">
-                    <div className="w-4 h-4 rounded-full bg-muted flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <div key={feature} className="flex items-start gap-3 opacity-50">
+                    <div className="w-5 h-5 rounded-full bg-muted flex items-center justify-center flex-shrink-0 mt-0.5">
                       <span className="text-xs text-muted-foreground">✕</span>
                     </div>
-                    <span className="text-muted-foreground text-sm">{feature}</span>
+                    <span className="text-muted-foreground">{feature}</span>
                   </div>
                 ))}
               </div>
@@ -249,7 +223,7 @@ export const SubscriptionPlans = () => {
                 ) : subscription ? (
                   `Switch to ${plan.name}`
                 ) : (
-                  `Get ${plan.name}`
+                  plan.popular ? 'Get Premium' : 'Get Started'
                 )}
               </Button>
 
