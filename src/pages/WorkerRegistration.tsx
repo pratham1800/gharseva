@@ -140,10 +140,13 @@ export default function WorkerRegistration() {
         }
       }
 
-      // Insert worker record
-      const { data: workerData, error: workerError } = await supabase
+      const newWorkerId = globalThis.crypto.randomUUID();
+
+      // Insert worker record (no RETURNING to avoid needing SELECT RLS at insert time)
+      const { error: workerError } = await supabase
         .from('workers')
         .insert({
+          id: newWorkerId,
           name: formData.name,
           age: formData.age ? parseInt(formData.age) : null,
           gender: formData.gender || null,
@@ -158,9 +161,7 @@ export default function WorkerRegistration() {
           residential_address: formData.residentialAddress || null,
           notes: formData.notes || null,
           status: 'pending_verification'
-        })
-        .select('id')
-        .single();
+        });
 
       if (workerError) throw workerError;
 
@@ -169,13 +170,10 @@ export default function WorkerRegistration() {
         .from('worker_auth')
         .insert({
           user_id: user.id,
-          worker_id: workerData.id
+          worker_id: newWorkerId
         });
 
-      if (authError) {
-        console.error('Error creating worker_auth link:', authError);
-        // Worker was created but linking failed - still show success but log the error
-      }
+      if (authError) throw authError;
 
       toast({
         title: 'Worker Registered!',
