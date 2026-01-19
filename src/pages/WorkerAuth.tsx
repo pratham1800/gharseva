@@ -95,7 +95,7 @@ export default function WorkerAuth() {
             title: 'Welcome to GharSeva!',
             description: 'Your worker account has been created. Complete your profile to get started.',
           });
-          navigate('/for-workers/registration');
+          navigate('/for-workers/register');
         }
       }
     } catch (err) {
